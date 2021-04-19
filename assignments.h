@@ -16,16 +16,9 @@ int evaluateExpression(string expression);
 class Variable
 {
 public:
-    static map<string, Variable *> currentVariables;
-    static bool checkIfExists(string variableName);
-    static int getValue(string variableName);
     static int currentTempCount;
     static string getCurrentTempName();
+    static vector<pair<string,string>> variables;
 
-    Variable(string name);
-    string name;
-
-private:
-    int value;
 };
 #endif 

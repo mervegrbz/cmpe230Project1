@@ -4,31 +4,15 @@ string variableRegex = "\\s*([a-zA-Z]{1}[0-9a-zA-Z]{0,})\\s*";
 string equationRegex = "\\s*((" + variableRegex + "|\\d+)(?:\\s*[+*-\\/]\\s*(" + variableRegex + "|[0-9]{1,})){0,}\\s*)";
 string assignmentRegex = variableRegex + "\\s*=\\s*" + equationRegex;
 
+
+vector<pair<string,string>> Variable::variables;
 int Variable::currentTempCount = 0;
-map<string, Variable *> Variable::currentVariables;
-
-bool Variable::checkIfExists(string variableName)
-{
-    return Variable::currentVariables.find(variableName) != Variable::currentVariables.end();
-}
-int Variable::getValue(string variableName)
-{
-    if (Variable::checkIfExists(variableName))
-        return Variable::currentVariables[variableName]->value;
-    Variable a = Variable(variableName);
-    return a.value;
-}
-
-Variable::Variable(string name)
-{
-    this->name = name;
-    this->value = 0;
-    Variable::currentVariables[name] = this;
-}
 
 regex assignmentController(assignmentRegex);
 regex equationController(equationRegex);
 regex variableController(variableRegex);
+
+
 
 bool checkExpressionSyntax(string expression)
 {
