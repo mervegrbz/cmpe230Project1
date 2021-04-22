@@ -1,9 +1,16 @@
 #include "outputService.h"
-
+#include <iostream>
 vector<string> OutputService::allocLines;
 vector<string> OutputService::storeLines;
 vector<string> OutputService::lines;
 ofstream OutputService::outputFile;
+int OutputService::tempCount = 1;
+string OutputService::getTempName()
+{
+    string varName = "%t" + to_string(OutputService::tempCount++);
+    // cout << varName;
+    return varName;
+}
 
 void OutputService::addLine(string line)
 {

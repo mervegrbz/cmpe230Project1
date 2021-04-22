@@ -1,24 +1,39 @@
 #include "assignments.h"
-
-string variableRegex = "\\s*([a-zA-Z]{1}[0-9a-zA-Z]{0,})\\s*";
-string equationRegex = "\\s*((" + variableRegex + "|\\d+)(?:\\s*[+*-\\/]\\s*(" + variableRegex + "|[0-9]{1,})){0,}\\s*)";
-string assignmentRegex = variableRegex + "\\s*=\\s*" + equationRegex;
-
-
-vector<pair<string,string>> Variable::variables;
+#include "evaluation.h"
+#include "outputService.h"
+unordered_set<string> Variable::existingVariables;
+vector<pair<string, string>> Variable::variables;
 int Variable::currentTempCount = 0;
 
-regex assignmentController(assignmentRegex);
-regex equationController(equationRegex);
-regex variableController(variableRegex);
+string RegexController::variableRegex = "\\s*([a-zA-Z]{1}[0-9a-zA-Z]{0,})\\s*";
+string RegexController::equationRegex = "\\s*((" + variableRegex + "|\\d+)(?:\\s*[+*-\\/]\\s*(" + variableRegex + "|[0-9]{1,})){0,}\\s*)";
+string RegexController::assignmentRegex = variableRegex + "\\s*=\\s*" + equationRegex;
 
+regex RegexController::assignmentController(RegexController::assignmentRegex);
+regex RegexController::equationController(RegexController::equationRegex);
+regex RegexController::variableController(RegexController::variableRegex);
 
+void handleAssignmentLine(string currentLine)
+{
+    currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), ' '), currentLine.end());
+
+    int equalSignIndex = currentLine.find("=");
+    string varName = currentLine.substr(0, equalSignIndex);
+    if (Variable::existingVariables.find(varName) == Variable::existingVariables.end())
+    {
+        OutputService::allocLines.push_back("%" + varName + " = alloca i32");
+        OutputService::storeLines.push_back("store i32 0, i32* %" + varName);
+        Variable::existingVariables.insert(varName);
+    }
+    string lastUsedTempVar = evaluateExpression(currentLine.substr(equalSignIndex + 1));
+    OutputService::addLine("store i32 " + lastUsedTempVar + ", i32* %" + varName);
+}
 
 bool checkExpressionSyntax(string expression)
 {
     int bracketClosing = expression.find_first_of(")");
     if (bracketClosing == string::npos)
-        return regex_match(expression, equationController);
+        return regex_match(expression, RegexController::equationController);
     // Contains at least 1 )
     int bracketOpening = expression.substr(0, bracketClosing).find_last_of("(");
     if (bracketOpening == string::npos)
@@ -32,7 +47,7 @@ bool checkExpressionSyntax(string expression)
 
 bool checkVariableSyntax(string variable)
 {
-    return regex_match(variable, variableController);
+    return regex_match(variable, RegexController::variableController);
 }
 
 bool checkAssignmentSyntax(string assignmentLine)
@@ -43,28 +58,4 @@ bool checkAssignmentSyntax(string assignmentLine)
     bool isVariableSyntaxValid = checkVariableSyntax(assignmentLine.substr(0, equalSignIndex));
     bool isExpressionSyntaxValid = checkExpressionSyntax(assignmentLine.substr(equalSignIndex + 1));
     return isVariableSyntaxValid && isExpressionSyntaxValid;
-}
-
-int evaluateExpression(string expression)
-{
-    // expression.erase(std::remove(expression.begin(), expression.end(), ' '), expression.end());
-
-    // smatch res;
-    // string::const_iterator searchStart( expression.cbegin() );
-    // vector<string> foundVariables;
-    // while ( regex_search( searchStart, expression.cend(), res, variableController ) )
-    // {
-    //     // cout << ( searchStart == expression.cbegin() ? "" : " " ) << res[0];
-    //     foundVariables.push_back(res[0]);
-    //     searchStart = res.suffix().first;
-    // }
-    // for(string variable : foundVariables){
-    //     expression = regex_replace(expression,regex(variable),"" + Variable::getValue(variable));   
-    // }
-
-    // cout << expression << endl;
-
-    
-
-    return 0;
 }

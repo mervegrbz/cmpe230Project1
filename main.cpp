@@ -5,6 +5,7 @@
 
 #include "assignments.h"
 #include "outputService.h"
+#include "evaluation.h"
 
 using namespace std;
 
@@ -18,36 +19,60 @@ int main()
     OutputService::outputFile << "; ModuleID = 'mylang2ir'\ndeclare i32 @printf(i8*, ...)\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n"
                               << endl;
     OutputService::outputFile << "define i32 @main() {" << endl;
-    ;
 
     string currentLine;
     int currentLineIndex = 0;
     while (getline(inputFile, currentLine))
     {
         currentLineIndex++;
-        cout << "currentLine: " << currentLineIndex << "\t";
 
-        bool isAssignmentLine = checkAssignmentSyntax(currentLine);
-        if (isAssignmentLine)
+        if (checkAssignmentSyntax(currentLine))
+            handleAssignmentLine(currentLine);
+
+        else if (currentLine.find("while") != string::npos)
         {
-            currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), ' '), currentLine.end());
+            // While Loop
 
-            int equalSignIndex = currentLine.find("=");
-            string varName = currentLine.substr(0, equalSignIndex);
-            OutputService::allocLines.push_back("%" + varName + " = alloca i32");
-            OutputService::storeLines.push_back("store i32 0, i32* %" + varName);
-            string lastUsedTempVar = "t5"; //evaluateExpression(currentLine.substr(equalSignIndex+1));
-            OutputService::addLine("store i32 %" + lastUsedTempVar + " i32* %" + varName);
+            int openIndex = currentLine.find_first_of("(");
+            int closeIndex = currentLine.find_first_of(")");
+            string condition = currentLine.substr(openIndex + 1, closeIndex - openIndex-1);
+            string whileLine = "";
+            vector<string> whileLines;
+
+            while (true)
+            {
+                getline(inputFile, whileLine);
+                if (whileLine.find_first_of("}") != string::npos)
+                    break;
+                whileLines.push_back(whileLine);
+                currentLineIndex++;
+            }
+
+            OutputService::addLine("br label %whcond_" + to_string(currentLineIndex));
+            OutputService::addLine("whcond_" + to_string(currentLineIndex) + ":");
+            string conditionTempName = evaluateExpression(condition); //TODO beware of spaces and tabs
+            // %t2 = icmp ne i32 %t1, 0
+            string result = OutputService::getTempName();
+            OutputService::addLine(result + " = icmp ne i32 " + conditionTempName + ", 0");
+            OutputService::addLine("br i1 " + result + ", label %whbody_" + to_string(currentLineIndex) + ", label %whend_" + to_string(currentLineIndex));
+            OutputService::addLine("whbody_" + to_string(currentLineIndex) + ":");
+            for (int i = 0; i < whileLines.size(); i++)
+            {
+                if (checkAssignmentSyntax(whileLines[i]))
+                    handleAssignmentLine(whileLines[i]);
+                else
+                    cout << "Syntax error on line " << currentLineIndex - whileLines.size() + i << endl;
+            }
+            OutputService::addLine("br label %whcond_" + to_string(currentLineIndex));
+            OutputService::addLine("whend_" + to_string(currentLineIndex)+":");
         }
 
         else
         {
-            cout << "Syntax error on line " << currentLineIndex << endl;
             break;
         }
     }
 
-    
     OutputService::vectorsToFile();
 
     OutputService::outputFile.close();
