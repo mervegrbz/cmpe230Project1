@@ -15,4 +15,6 @@ class OutputService{
 
         static ofstream outputFile;
         static void vectorsToFile();
+
+        static void chooseFunction();
 };

@@ -6,6 +6,8 @@
 #include "assignments.h"
 #include "outputService.h"
 #include "evaluation.h"
+#include "functions.h"
+
 
 using namespace std;
 
@@ -18,6 +20,7 @@ int main()
 
     OutputService::outputFile << "; ModuleID = 'mylang2ir'\ndeclare i32 @printf(i8*, ...)\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n"
                               << endl;
+    OutputService::chooseFunction();
     OutputService::outputFile << "define i32 @main() {" << endl;
 
     string currentLine;
@@ -26,16 +29,20 @@ int main()
     {
         currentLineIndex++;
 
+        if(currentLine.find("choose") != string::npos) {
+             currentLine = handleChooseLine(currentLine);
+        }   
+    
         if (checkAssignmentSyntax(currentLine))
             handleAssignmentLine(currentLine);
 
-        else if (currentLine.find("while") != string::npos)
+        else if (currentLine.find("while") != string::npos || currentLine.find("if") != string::npos)
         {
             // While Loop
 
             int openIndex = currentLine.find_first_of("(");
             int closeIndex = currentLine.find_first_of(")");
-            string condition = currentLine.substr(openIndex + 1, closeIndex - openIndex-1);
+            string condition = currentLine.substr(openIndex + 1, closeIndex - openIndex - 1);
             string whileLine = "";
             vector<string> whileLines;
 
@@ -48,14 +55,14 @@ int main()
                 currentLineIndex++;
             }
 
-            OutputService::addLine("br label %whcond_" + to_string(currentLineIndex));
-            OutputService::addLine("whcond_" + to_string(currentLineIndex) + ":");
+            OutputService::addLine("br label %cond_" + to_string(currentLineIndex));
+            OutputService::addLine("cond_" + to_string(currentLineIndex) + ":");
             string conditionTempName = evaluateExpression(condition); //TODO beware of spaces and tabs
             // %t2 = icmp ne i32 %t1, 0
             string result = OutputService::getTempName();
             OutputService::addLine(result + " = icmp ne i32 " + conditionTempName + ", 0");
-            OutputService::addLine("br i1 " + result + ", label %whbody_" + to_string(currentLineIndex) + ", label %whend_" + to_string(currentLineIndex));
-            OutputService::addLine("whbody_" + to_string(currentLineIndex) + ":");
+            OutputService::addLine("br i1 " + result + ", label %body_" + to_string(currentLineIndex) + ", label %end_" + to_string(currentLineIndex));
+            OutputService::addLine("body_" + to_string(currentLineIndex) + ":");
             for (int i = 0; i < whileLines.size(); i++)
             {
                 if (checkAssignmentSyntax(whileLines[i]))
@@ -63,8 +70,12 @@ int main()
                 else
                     cout << "Syntax error on line " << currentLineIndex - whileLines.size() + i << endl;
             }
-            OutputService::addLine("br label %whcond_" + to_string(currentLineIndex));
-            OutputService::addLine("whend_" + to_string(currentLineIndex)+":");
+            if (currentLine.find("while") != string::npos)
+                OutputService::addLine("br label %cond_" + to_string(currentLineIndex));
+            else
+                OutputService::addLine("br label %end_" + to_string(currentLineIndex));
+
+            OutputService::addLine("end_" + to_string(currentLineIndex) + ":");
         }
 
         else

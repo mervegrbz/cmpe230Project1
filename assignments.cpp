@@ -1,6 +1,7 @@
 #include "assignments.h"
 #include "evaluation.h"
 #include "outputService.h"
+
 unordered_set<string> Variable::existingVariables;
 vector<pair<string, string>> Variable::variables;
 int Variable::currentTempCount = 0;
@@ -16,6 +17,7 @@ regex RegexController::variableController(RegexController::variableRegex);
 void handleAssignmentLine(string currentLine)
 {
     currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), ' '), currentLine.end());
+    currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\t'), currentLine.end());
 
     int equalSignIndex = currentLine.find("=");
     string varName = currentLine.substr(0, equalSignIndex);

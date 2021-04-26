@@ -44,7 +44,7 @@ vector<string> infixToPostfix(string s)
     st.push("N");
     int l = calc.size();
     vector<string> ns;
-    for (int i = 0; i < l; i++)
+    for (int i = 0; i < calc.size(); i++)
     {
 
         if (operators.find(calc[i]) == string::npos)
@@ -133,20 +133,15 @@ string postfixEval(vector<string> ns)
         {
 
         case ('+'):
-            // %t6 = add i32 %t4, %t5
             OutputService::addLine(resultTempName + " = add i32 " + operand2 + ", " + operand1);
             break;
-
         case ('-'):
-            // %t10 = sub i32 %t9, 1
             OutputService::addLine(resultTempName + " = sub i32 " + operand2 + ", " + operand1);
             break;
         case ('*'):
-            // %t10 = sub i32 %t9, 1
             OutputService::addLine(resultTempName + " = mul i32 " + operand2 + ", " + operand1);
             break;
         case ('/'):
-            // %t10 = sub i32 %t9, 1
             OutputService::addLine(resultTempName + " = sdiv i32 " + operand2 + ", " + operand1 );
             break;
         }
@@ -157,6 +152,13 @@ string postfixEval(vector<string> ns)
 }
 string evaluateExpression(string exp)
 {
+    // if choose ile basladi:
+    //     parametre ayir
+    //     gerekirse recursive cagir
+    //     en son da t5 don 
+    
+    // gelen = choose(choose(1,5853013,4280901,choose(0, 4674117, choose(1,5853013,4281377,4280901),5853013)),0-1 * 0+1,5853013,0*0 + 0/1)
+    
 
     return postfixEval(infixToPostfix(exp));
 }
