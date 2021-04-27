@@ -7,12 +7,14 @@ vector<pair<string, string>> Variable::variables;
 int Variable::currentTempCount = 0;
 
 string RegexController::variableRegex = "\\s*([a-zA-Z]{1}[0-9a-zA-Z]{0,})\\s*";
-string RegexController::equationRegex = "\\s*((" + variableRegex + "|\\d+)(?:\\s*[+*-\\/]\\s*(" + variableRegex + "|[0-9]{1,})){0,}\\s*)";
+string RegexController::equationRegex = "\\s*((([%]{0,1}" + variableRegex + ")|\\d+)(?:\\s*[+*-\\/]\\s*(([%]{0,1}" + variableRegex + ")|[0-9]{1,})){0,}\\s*)";
 string RegexController::assignmentRegex = variableRegex + "\\s*=\\s*" + equationRegex;
+string RegexController::printRegex = "\\s*print\\("+ RegexController::equationRegex + "\\)";
 
 regex RegexController::assignmentController(RegexController::assignmentRegex);
 regex RegexController::equationController(RegexController::equationRegex);
 regex RegexController::variableController(RegexController::variableRegex);
+regex RegexController::printController(RegexController::printRegex);
 
 void handleAssignmentLine(string currentLine)
 {

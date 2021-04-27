@@ -93,18 +93,25 @@ vector<string> infixToPostfix(string s)
 
 string postfixEval(vector<string> ns)
 {
-    if (ns.size() == 1){
-        if (regex_match(ns[0], RegexController::variableController)){
+    if (ns.size() == 1)
+    {
+        if (regex_match(ns[0], RegexController::variableController))
+        {
             string tempName = OutputService::getTempName();
+            if (Variable::existingVariables.find(ns[0]) == Variable::existingVariables.end())
+            {
+                OutputService::allocLines.push_back("%" + ns[0] + " = alloca i32");
+                OutputService::storeLines.push_back("store i32 0, i32* %" + ns[0]);
+                Variable::existingVariables.insert(ns[0]);
+            }
             OutputService::addLine(tempName + " = load i32* %" + ns[0]);
             return tempName;
         }
         return ns[0];
-
     }
     stack<string> evaluations;
     for (int i = 0; i < ns.size(); i++)
-    {
+    { //TODO ALLOC YAP
         if (operators.find(ns[i]) == string::npos)
         {
             evaluations.push(ns[i]);
@@ -115,6 +122,12 @@ string postfixEval(vector<string> ns)
 
         if (regex_match(operand1, RegexController::variableController))
         {
+            if (Variable::existingVariables.find(operand1) == Variable::existingVariables.end())
+            {
+                OutputService::allocLines.push_back("%" + operand1 + " = alloca i32");
+                OutputService::storeLines.push_back("store i32 0, i32* %" + operand1);
+                Variable::existingVariables.insert(operand1);
+            }
             operand1 = OutputService::getTempName();
             OutputService::addLine(operand1 + " = load i32* %" + evaluations.top());
         }
@@ -123,6 +136,12 @@ string postfixEval(vector<string> ns)
         string operand2 = evaluations.top();
         if (regex_match(operand2, RegexController::variableController))
         {
+            if (Variable::existingVariables.find(operand2) == Variable::existingVariables.end())
+            {
+                OutputService::allocLines.push_back("%" + operand2 + " = alloca i32");
+                OutputService::storeLines.push_back("store i32 0, i32* %" + operand2);
+                Variable::existingVariables.insert(operand2);
+            }
             operand2 = OutputService::getTempName();
             OutputService::addLine(operand2 + "=  load i32* %" + evaluations.top());
         }
@@ -142,7 +161,7 @@ string postfixEval(vector<string> ns)
             OutputService::addLine(resultTempName + " = mul i32 " + operand2 + ", " + operand1);
             break;
         case ('/'):
-            OutputService::addLine(resultTempName + " = sdiv i32 " + operand2 + ", " + operand1 );
+            OutputService::addLine(resultTempName + " = sdiv i32 " + operand2 + ", " + operand1);
             break;
         }
         evaluations.push(resultTempName);
@@ -155,10 +174,9 @@ string evaluateExpression(string exp)
     // if choose ile basladi:
     //     parametre ayir
     //     gerekirse recursive cagir
-    //     en son da t5 don 
-    
-    // gelen = choose(choose(1,5853013,4280901,choose(0, 4674117, choose(1,5853013,4281377,4280901),5853013)),0-1 * 0+1,5853013,0*0 + 0/1)
-    
+    //     en son da t5 don
+    exp.erase(std::remove(exp.begin(), exp.end(), ' '), exp.end());
+    exp.erase(std::remove(exp.begin(), exp.end(), '\t'), exp.end());
 
     return postfixEval(infixToPostfix(exp));
 }

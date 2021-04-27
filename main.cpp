@@ -8,31 +8,34 @@
 #include "evaluation.h"
 #include "functions.h"
 
-
 using namespace std;
 
 int main()
 {
-    string fileName = "m.my";
+    string syntaxErrorMessage = "";
+    string fileName = "deliverables/inputs/testcase4.my";
     ifstream inputFile;
     inputFile.open(fileName);
     OutputService::outputFile.open("deneme.ll");
-
-    OutputService::outputFile << "; ModuleID = 'mylang2ir'\ndeclare i32 @printf(i8*, ...)\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n"
-                              << endl;
-    OutputService::chooseFunction();
-    OutputService::outputFile << "define i32 @main() {" << endl;
 
     string currentLine;
     int currentLineIndex = 0;
     while (getline(inputFile, currentLine))
     {
-        currentLineIndex++;
 
-        if(currentLine.find("choose") != string::npos) {
-             currentLine = handleChooseLine(currentLine);
-        }   
-    
+        currentLineIndex++;
+        currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\t'), currentLine.end());
+        currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\r'), currentLine.end());
+        if (currentLine == "" || currentLine[0] == '#')
+            continue;
+        if (currentLine.find("#") != string::npos)
+            currentLine = currentLine.substr(0, currentLine.find("#"));
+
+        if (currentLine.find("choose") != string::npos)
+        {
+            currentLine = handleChooseLine(currentLine);
+        }
+
         if (checkAssignmentSyntax(currentLine))
             handleAssignmentLine(currentLine);
 
@@ -49,6 +52,10 @@ int main()
             while (true)
             {
                 getline(inputFile, whileLine);
+                whileLine.erase(std::remove(whileLine.begin(), whileLine.end(), '\t'), whileLine.end());
+                whileLine.erase(std::remove(whileLine.begin(), whileLine.end(), '\r'), whileLine.end());
+                if (whileLine.find("#") != string::npos)
+                    whileLine = whileLine.substr(0, whileLine.find("#"));
                 if (whileLine.find_first_of("}") != string::npos)
                     break;
                 whileLines.push_back(whileLine);
@@ -65,26 +72,53 @@ int main()
             OutputService::addLine("body_" + to_string(currentLineIndex) + ":");
             for (int i = 0; i < whileLines.size(); i++)
             {
-                if (checkAssignmentSyntax(whileLines[i]))
-                    handleAssignmentLine(whileLines[i]);
+                string currentWhileLine = whileLines[i];
+                if (currentWhileLine.find("choose") != string::npos)
+                {
+                    currentWhileLine = handleChooseLine(currentWhileLine);
+                }
+                if (checkAssignmentSyntax(currentWhileLine))
+                    handleAssignmentLine(currentWhileLine);
+                else if (currentWhileLine.find("print(") != string::npos && regex_match(currentWhileLine, RegexController::printController))
+                {
+
+                    handlePrintLine(currentWhileLine);
+                }
                 else
-                    cout << "Syntax error on line " << currentLineIndex - whileLines.size() + i << endl;
+                    syntaxErrorMessage = "Syntax error on line " + to_string(currentLineIndex - whileLines.size() + i);
             }
             if (currentLine.find("while") != string::npos)
                 OutputService::addLine("br label %cond_" + to_string(currentLineIndex));
+
             else
                 OutputService::addLine("br label %end_" + to_string(currentLineIndex));
 
             OutputService::addLine("end_" + to_string(currentLineIndex) + ":");
         }
+        else if (currentLine.find("print(") != string::npos && regex_match(currentLine, RegexController::printController))
+        {
+
+            handlePrintLine(currentLine);
+        }
 
         else
         {
+            syntaxErrorMessage = "Syntax error on line " + to_string(currentLineIndex);
+
             break;
         }
     }
+    if (syntaxErrorMessage == "")
+    {
+        OutputService::outputFile << "; ModuleID = 'mylang2ir'\ndeclare i32 @printf(i8*, ...)\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n"
+                                  << endl;
+        OutputService::chooseFunction();
+        OutputService::outputFile << "define i32 @main() {" << endl;
 
-    OutputService::vectorsToFile();
+        OutputService::vectorsToFile();
+    }
+    else
+        OutputService::outputFile << syntaxErrorMessage << endl;
 
     OutputService::outputFile.close();
     inputFile.close();

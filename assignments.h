@@ -10,10 +10,12 @@ public:
     static string variableRegex;
     static string equationRegex;
     static string assignmentRegex;
+    static string printRegex;
 
     static regex assignmentController;
     static regex equationController;
     static regex variableController;
+    static regex printController;
 };
 // Regex Definitions
 void handleAssignmentLine(string currentLine);
