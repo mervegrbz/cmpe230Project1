@@ -4,7 +4,7 @@ var1 = 20
 var2 = 25
 
 # set variables for initial iteration
-comparator = choose(var1 - var2, 0, 1, -1)  # -1 
+comparator = choose(var1 - var2, 0, 1, zero-1)  # -1 
 cmp = (var1-var2)*comparator # -5
 iteration = 0
 

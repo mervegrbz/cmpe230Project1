@@ -1,12 +1,12 @@
 
 # Let us see slightly more complex expressions... You know, just for fun ;)
 expression = ((zero -17))
-step = 20
-while(expression + ((a_zero_expression*0)-0*(another_expression)) ) {
+step = 21
+while(expression + ((azeroexpression*0)-0*(anotherexpression)) ) {
 	posVal = expression - step 
 	negVal = (((zero-1) * expression) / 2)
-	expression = choose(expression, zero-1, posVal, negVal)
-	step = choose(step, step, zero-1, step+1)
+	expression = choose(expression, zero-1, posVal, negVal)	
+	step = choose(step, step, step-1, step+1)
 	print(expression)
 }
 
