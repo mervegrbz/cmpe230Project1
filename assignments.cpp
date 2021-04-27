@@ -5,16 +5,17 @@
 unordered_set<string> Variable::existingVariables;
 vector<pair<string, string>> Variable::variables;
 int Variable::currentTempCount = 0;
-
 string RegexController::variableRegex = "\\s*([a-zA-Z]{1}[0-9a-zA-Z]{0,})\\s*";
-string RegexController::equationRegex = "\\s*((([%]{0,1}" + variableRegex + ")|\\d+)(?:\\s*[+*-\\/]\\s*(([%]{0,1}" + variableRegex + ")|[0-9]{1,})){0,}\\s*)";
+string singleEquation = "\\s*((([%]{0,1}" + RegexController::variableRegex + ")|-?\\d+)(?:\\s*[+*-\\/]\\s*(([%]{0,1}" + RegexController::variableRegex + ")|-?\\d+)){0,}\\s*)";
+string RegexController::equationRegex = "("+singleEquation+"|\\("+singleEquation+"\\)"+")";
 string RegexController::assignmentRegex = variableRegex + "\\s*=\\s*" + equationRegex;
-string RegexController::printRegex = "\\s*print\\("+ RegexController::equationRegex + "\\)";
-
+string RegexController::printRegex = "\\s*print\\("+ RegexController::equationRegex + "\\)\\s*";
+string RegexController::zeroRegex = "zero";
 regex RegexController::assignmentController(RegexController::assignmentRegex);
 regex RegexController::equationController(RegexController::equationRegex);
 regex RegexController::variableController(RegexController::variableRegex);
 regex RegexController::printController(RegexController::printRegex);
+regex RegexController::zeroController(RegexController::zeroRegex);
 
 void handleAssignmentLine(string currentLine)
 {

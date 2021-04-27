@@ -11,7 +11,7 @@ string handleChooseLine(string currentLine)
 { // gelen line  a1 = 2 + choose(1,2,3,4)
     //choose(1,2,3,choose(1,2,3,4))
     // 2,3,4)
-    string equationRegex = "\\s*((([%]{0,1}" + RegexController::variableRegex + ")|" + multiChoose + "|\\d+)(?:\\s*[+*-\\/]\\s*(([%]{0,1}" + RegexController::variableRegex + ")|" + multiChoose + "|[0-9]{1,})){0,}\\s*)";
+    string equationRegex = "\\s*((([%]{0,1}" + RegexController::variableRegex + ")|" + multiChoose + "|-?\\d+)(?:\\s*[+*-\\/]\\s*(([%]{0,1}" + RegexController::variableRegex + ")|" + multiChoose + "|-?\\d+)){0,}\\s*)";
     string assignmentRegex = RegexController::variableRegex + "\\s*=\\s*" + equationRegex;
     regex chooseAssign(assignmentRegex);
     regex equReg(equationRegex);

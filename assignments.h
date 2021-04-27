@@ -11,11 +11,13 @@ public:
     static string equationRegex;
     static string assignmentRegex;
     static string printRegex;
+    static string zeroRegex;
 
     static regex assignmentController;
     static regex equationController;
     static regex variableController;
     static regex printController;
+    static regex zeroController;
 };
 // Regex Definitions
 void handleAssignmentLine(string currentLine);

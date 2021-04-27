@@ -177,6 +177,8 @@ string evaluateExpression(string exp)
     //     en son da t5 don
     exp.erase(std::remove(exp.begin(), exp.end(), ' '), exp.end());
     exp.erase(std::remove(exp.begin(), exp.end(), '\t'), exp.end());
+    if(exp[0] == '-')
+        exp = to_string(0)+exp;
 
     return postfixEval(infixToPostfix(exp));
 }

@@ -9,11 +9,11 @@
 #include "functions.h"
 
 using namespace std;
-
+//11 14 15 17 
 int main()
 {
     string syntaxErrorMessage = "";
-    string fileName = "deliverables/inputs/testcase4.my";
+    string fileName = "deliverables/inputs/testcase18.my";
     ifstream inputFile;
     inputFile.open(fileName);
     OutputService::outputFile.open("deneme.ll");
@@ -24,6 +24,8 @@ int main()
     {
 
         currentLineIndex++;
+
+        currentLine = regex_replace(currentLine, RegexController::zeroController, "0");
         currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\t'), currentLine.end());
         currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\r'), currentLine.end());
         if (currentLine == "" || currentLine[0] == '#')
@@ -44,24 +46,33 @@ int main()
             // While Loop
 
             int openIndex = currentLine.find_first_of("(");
-            int closeIndex = currentLine.find_first_of(")");
+            int closeIndex = currentLine.find_last_of(")");
             string condition = currentLine.substr(openIndex + 1, closeIndex - openIndex - 1);
             string whileLine = "";
             vector<string> whileLines;
-
-            while (true)
+            bool isClosed = false;
+            while (getline(inputFile, whileLine))
             {
-                getline(inputFile, whileLine);
+
+                cout << whileLine << endl;
+                currentLineIndex++;
                 whileLine.erase(std::remove(whileLine.begin(), whileLine.end(), '\t'), whileLine.end());
                 whileLine.erase(std::remove(whileLine.begin(), whileLine.end(), '\r'), whileLine.end());
+                if (whileLine == "" || whileLine[0] == '#')
+                    continue;
                 if (whileLine.find("#") != string::npos)
                     whileLine = whileLine.substr(0, whileLine.find("#"));
                 if (whileLine.find_first_of("}") != string::npos)
+                {
+                    isClosed = true;
                     break;
+                }
                 whileLines.push_back(whileLine);
-                currentLineIndex++;
             }
-
+            if (!isClosed)
+            {
+                syntaxErrorMessage = "Syntax error on line " + to_string(currentLineIndex);
+            }
             OutputService::addLine("br label %cond_" + to_string(currentLineIndex));
             OutputService::addLine("cond_" + to_string(currentLineIndex) + ":");
             string conditionTempName = evaluateExpression(condition); //TODO beware of spaces and tabs
