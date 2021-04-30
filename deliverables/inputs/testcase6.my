@@ -13,12 +13,12 @@ while(cmp){
 	var2 = choose(comparator, var2, var2, var2-var1)
 
 	# set variables for next iteration
-	comparator = choose(var1 - var2, 0, 1, -1)
+	comparator = choose(var1 - var2, 0, 1, zero-1)
 	cmp = (var1-var2)*comparator
 	iteration = iteration + 1
 }
 print(iteration)	# 4
-print(var1)			# 5
-print(var2)			# 5
-print(cmp)			# 0
+print(var1)		# 5
+print(var2)		# 5
+print(cmp)		# 0
 print(comparator)	# 0
