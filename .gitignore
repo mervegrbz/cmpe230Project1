@@ -2,3 +2,7 @@
 main
 *.ll
 m.my
+*.o
+*.h.gch
+mylang2ir
+outputTemp.txt

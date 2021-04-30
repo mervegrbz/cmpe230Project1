@@ -19,8 +19,8 @@ string handleChooseLine(string currentLine)
 
     bool a = regex_match(currentLine, chooseAssign);
     bool b = regex_match(currentLine, printSyntax);
-    if (!a && !b)
-        return "";
+    // if (!a && !b)
+    //     return "";
 
     smatch match;
     while (regex_search(currentLine, match, singleChooseRegex))

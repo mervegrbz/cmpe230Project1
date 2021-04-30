@@ -26,7 +26,7 @@ void OutputService::chooseFunction()
 }
 void OutputService::vectorsToFile()
 {
-    OutputService::addLine("\nret i32 0\n}");
+    // OutputService::addLine("\nret i32 0\n}");
 
     // Starting to write to .ll file. Do not add from now on.
     for (string line : OutputService::allocLines)
