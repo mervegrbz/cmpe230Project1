@@ -1,0 +1,19 @@
+b = 99
+a = b
+#ads ad a asd 
+c = 1123 + 85 * 8 / 2 * 20
+print(a*b*c)
+while(c){
+    print(c)
+    c = c / 10
+}
+
+#
+
+
+if(choose(1,1,1,0)) {
+    x = 0
+    m = 2
+}
+print(choose(-3,2,3,4))
+

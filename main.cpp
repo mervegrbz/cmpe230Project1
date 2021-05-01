@@ -26,7 +26,7 @@ int main(int argCount, char *argv[])
     while (getline(inputFile, currentLine))
     {
         currentLineIndex++;
-        currentLine = regex_replace(currentLine, RegexController::zeroController, "0");
+        currentLine = regex_replace(currentLine,RegexController::zeroController, "0");
         currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\t'), currentLine.end());
         currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\r'), currentLine.end());
         if (currentLine == "" || currentLine[0] == '#')
@@ -117,7 +117,7 @@ int main(int argCount, char *argv[])
 
             OutputService::addLine("end_" + to_string(currentLineIndex) + ":");
         }
-        else if (currentLine.find("print(") != string::npos && regex_match(currentLine, RegexController::printController))
+        else if (currentLine.find("print(") != string::npos && checkPrintSyntax(currentLine))
             handlePrintLine(currentLine);
         else
         {
