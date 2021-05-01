@@ -5,6 +5,7 @@ vector<string> OutputService::storeLines;
 vector<string> OutputService::lines;
 ofstream OutputService::outputFile;
 int OutputService::tempCount = 1;
+int OutputService::currentLine = 0;
 string OutputService::getTempName()
 {
     string varName = "%t" + to_string(OutputService::tempCount++);

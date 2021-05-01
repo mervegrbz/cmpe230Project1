@@ -111,13 +111,15 @@ string postfixEval(vector<string> ns)
     }
     stack<string> evaluations;
     for (int i = 0; i < ns.size(); i++)
-    { //TODO ALLOC YAP
+    {
         if (operators.find(ns[i]) == string::npos)
         {
             evaluations.push(ns[i]);
             continue;
         }
 
+        if (evaluations.size() < 2)
+            throw OutputService::currentLine - 1;
         string operand1 = evaluations.top();
 
         if (regex_match(operand1, RegexController::variableController))
@@ -166,7 +168,8 @@ string postfixEval(vector<string> ns)
         }
         evaluations.push(resultTempName);
     }
-
+    if (evaluations.empty())
+        throw OutputService::currentLine - 1;
     return evaluations.top();
 }
 string evaluateExpression(string exp)
@@ -177,8 +180,8 @@ string evaluateExpression(string exp)
     //     en son da t5 don
     exp.erase(std::remove(exp.begin(), exp.end(), ' '), exp.end());
     exp.erase(std::remove(exp.begin(), exp.end(), '\t'), exp.end());
-    if(exp[0] == '-')
-        exp = to_string(0)+exp;
+    if (exp[0] == '-')
+        exp = to_string(0) + exp;
 
     return postfixEval(infixToPostfix(exp));
 }

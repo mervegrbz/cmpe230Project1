@@ -12,7 +12,7 @@ class OutputService{
         static void printer(string variableName);
         static string getTempName();
         static int tempCount;
-
+        static int currentLine;
         static ofstream outputFile;
         static void vectorsToFile();
 

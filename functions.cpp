@@ -8,22 +8,61 @@ string denemeRegex = "choose\\((\\s*" + chooseParam + "\\s*,\\s*){3}\\s*" + choo
 regex denemeRegexController(denemeRegex);
 regex singleChooseRegex(singleChoose);
 
-string merveFuncu(string currentLine){
-    int openBracket= currentLine.find_last_of("(");
-    int closingBracket = currentLine.substr(openBracket).find_first_of(")") + openBracket ;
-    string inside = currentLine.substr(openBracket,closingBracket - openBracket +1);
+string merveFuncu(string currentLine)
+{
+    int openBracket = currentLine.find_last_of("(");
+    if (openBracket == string::npos)
+        return currentLine;
+    if (currentLine.substr(openBracket).find_first_of(")") == string::npos)
+        return currentLine;
+    int closingBracket = currentLine.substr(openBracket).find_first_of(")") + openBracket;
+    string inside = currentLine.substr(openBracket, closingBracket - openBracket + 1);
     if (inside.find(",") == string::npos)
     {
         string t = evaluateExpression(inside);
         regex temp(inside);
-        return regex_replace(currentLine,temp,t);
+        currentLine.replace(currentLine.find(inside), inside.length(), t);
     }
     return currentLine;
-    
 }
 
 string handleChooseLine(string currentLine)
 {
+
+    string head = "", tail = "";
+    if (currentLine.find("print(") != string::npos)
+    {
+        head = "print(";
+        tail = ")";
+        int openBracket = currentLine.find("(");
+        if (currentLine.substr(openBracket).find_last_of(")") == string::npos)
+            return "";
+        int closingBracket = currentLine.find_last_of(")");
+        currentLine = currentLine.substr(openBracket+1, closingBracket - openBracket -1);
+    }
+    else if (currentLine.find("if") != string::npos)
+    {
+        head = "if(";
+        tail = "){";
+        int openBracket = currentLine.find("(");
+        int closingBracket = currentLine.find_last_of(")");
+        int curly = currentLine.find("{");
+        if (openBracket == string::npos || closingBracket == string::npos || curly == string::npos)
+            return "";
+        currentLine = currentLine.substr(openBracket+1, closingBracket - openBracket -1);
+    }
+    else if (currentLine.find("while") != string::npos)
+    {
+        head = "while(";
+        tail = "){";
+        int openBracket = currentLine.find("(");
+        int closingBracket = currentLine.find_last_of(")");
+        int curly = currentLine.find("{");
+        if (openBracket == string::npos || closingBracket == string::npos || curly == string::npos)
+            return "";
+        currentLine = currentLine.substr(openBracket+1, closingBracket - openBracket -1);
+    }
+    
     currentLine = merveFuncu(currentLine);
     smatch match;
     while (regex_search(currentLine, match, denemeRegexController))
@@ -47,9 +86,8 @@ string handleChooseLine(string currentLine)
         regex t(chooseOriginal);
         currentLine.replace(currentLine.find(chooseOriginal), chooseOriginal.length(), result);
         currentLine = merveFuncu(currentLine);
-
     }
-    return currentLine;
+    return head + currentLine + tail;
 }
 
 string evaluateChoose(vector<string> variables)
