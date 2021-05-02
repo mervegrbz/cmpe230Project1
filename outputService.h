@@ -9,12 +9,10 @@ class OutputService{
         static vector<string> lines;
 
         static void addLine(string line);
-        static void printer(string variableName);
         static string getTempName();
         static int tempCount;
         static int currentLine;
         static ofstream outputFile;
         static void vectorsToFile();
-
         static void chooseFunction();
 };

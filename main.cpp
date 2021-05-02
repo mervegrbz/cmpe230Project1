@@ -40,11 +40,11 @@ int main(int argCount, char *argv[])
             if (currentLine.find("#") != string::npos)
                 currentLine = currentLine.substr(0, currentLine.find("#"));
             // Handling choose function before checking anything else may not be a great idea but obviously much easier to implement.
-            if (currentLine.find("choose") != string::npos)
+            if (currentLine.find("choose") != string::npos )
             {
                 currentLine = handleChooseLine(currentLine);
                 // There cannot be a choose function after the above function. If there is, it indicates a syntax error the function couldn't handle.
-                if (currentLine.find("choose") != string::npos)
+                if (currentLine.find("choose") != string::npos || currentLine.find(",") != string::npos)
                 {
                     syntaxErrorMessage = OutputService::currentLine - 1;
                     break;
@@ -120,7 +120,7 @@ int main(int argCount, char *argv[])
                     if (currentWhileLine.find("choose") != string::npos)
                     {
                         currentWhileLine = handleChooseLine(currentWhileLine);
-                        if (currentWhileLine.find("choose") != string::npos)
+                        if (currentWhileLine.find("choose") != string::npos || currentWhileLine.find(",") != string::npos)
                         {
                             syntaxErrorMessage = OutputService::currentLine - whileLines.size() + i - 1;
                             break;
@@ -129,7 +129,7 @@ int main(int argCount, char *argv[])
                     if (checkAssignmentSyntax(currentWhileLine))
                         handleAssignmentLine(currentWhileLine);
                     // If line has print in it
-                    else if (currentWhileLine.find("print(") != string::npos && regex_match(currentWhileLine, RegexController::printController))
+                    else if (currentWhileLine.find("print(") != string::npos && checkPrintSyntax(currentWhileLine))
                         handlePrintLine(currentWhileLine);
                     else
                         syntaxErrorMessage = OutputService::currentLine - whileLines.size() + i - 1;

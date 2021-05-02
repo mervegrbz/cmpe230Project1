@@ -66,17 +66,17 @@ bool checkExpressionSyntax(string expression)
     // We need to re-call it since our line has been updated and may have changed
     return checkExpressionSyntax(expression);
 }
-
+//We can use regex to see if a variable name is valid or not.
 bool checkVariableSyntax(string variable)
 {
     return regex_match(variable, RegexController::variableController);
 }
-
+// Divide the line by equals sign and check the variable and expression syntax. If both are them valid, then the line is valid
 bool checkAssignmentSyntax(string assignmentLine)
 {
     int equalSignIndex = assignmentLine.find("=");
     if (equalSignIndex == string::npos)
-        return false;
+        return false; // Couldn't find the equals sign
     bool isVariableSyntaxValid = checkVariableSyntax(assignmentLine.substr(0, equalSignIndex));
     bool isExpressionSyntaxValid = checkExpressionSyntax(assignmentLine.substr(equalSignIndex + 1));
     return isVariableSyntaxValid && isExpressionSyntaxValid;
