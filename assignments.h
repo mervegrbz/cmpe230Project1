@@ -33,6 +33,5 @@ public:
     static unordered_set<string> existingVariables;
     static int currentTempCount;
     static string getCurrentTempName();
-    static vector<pair<string, string>> variables;
 };
 #endif

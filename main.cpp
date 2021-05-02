@@ -1,7 +1,4 @@
 #include <iostream>
-#include <fstream>
-#include <regex>
-#include <string>
 
 #include "assignments.h"
 #include "outputService.h"

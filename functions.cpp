@@ -2,14 +2,11 @@
 #include "outputService.h"
 #include "assignments.h"
 #include "evaluation.h"
-string singleChoose = "\\s*choose\\((\\s*(" + RegexController::equationRegex + ",\\s*){3}\\s*" + RegexController::equationRegex + "\\))\\s*";
-string chooseParam = "((?!choose|,)[\\s%a-zA-Z0-9+\\-*\\/\\(\\)])+?";
-string denemeRegex = "choose\\((\\s*" + chooseParam + "\\s*,\\s*){3}\\s*" + chooseParam + "\\s*\\)";
-regex denemeRegexController(denemeRegex);
-regex singleChooseRegex(singleChoose);
-string merveFuncu(string currentLine)
-{
 
+string chooseParam = "((?!choose|,)[\\s*%a-zA-Z0-9+\\-*\\/\\(\\)])+?";
+regex denemeRegexController("choose\\((\\s*" + chooseParam + "\\s*,\\s*){3}\\s*" + chooseParam + "\\s*\\)");
+string handleParanthesis(string currentLine)
+{
     int cutFrom = 0;
     while (cutFrom < currentLine.length())
     {
@@ -34,28 +31,6 @@ string merveFuncu(string currentLine)
     }
     return currentLine;
 }
-string merveFuncu1(string currentLine)
-{
-    if (currentLine == "")
-        return "";
-    int openBracket = currentLine.find_last_of("(");
-    if (openBracket == string::npos)
-        return currentLine;
-    if (currentLine.substr(openBracket).find_first_of(")") == string::npos)
-        return currentLine;
-    int closingBracket = currentLine.substr(openBracket).find_first_of(")") + openBracket;
-    string inside = currentLine.substr(openBracket, closingBracket - openBracket + 1);
-    if (inside.find(",") == string::npos)
-    {
-        string t = evaluateExpression(inside);
-        regex temp(inside);
-        currentLine.replace(currentLine.find(inside), inside.length(), t);
-        return merveFuncu(currentLine);
-    }
-    string head = currentLine.substr(0, openBracket);
-    string tail = currentLine.substr(closingBracket + 1);
-    return merveFuncu(head) + inside + tail;
-}
 
 string handleChooseLine(string currentLine)
 {
@@ -73,7 +48,7 @@ string handleChooseLine(string currentLine)
     }
     else if (currentLine.find("if(") != string::npos)
     {
-        if (currentLine.substr(0, 3 ) != "if(")
+        if (currentLine.substr(0, 3) != "if(")
             throw OutputService::currentLine - 1;
         head = "if(";
         tail = "){";
@@ -98,7 +73,7 @@ string handleChooseLine(string currentLine)
         currentLine = currentLine.substr(openBracket + 1, closingBracket - openBracket - 1);
     }
 
-    currentLine = merveFuncu(currentLine);
+    currentLine = handleParanthesis(currentLine);
     smatch match;
     while (regex_search(currentLine, match, denemeRegexController))
     {
@@ -111,16 +86,14 @@ string handleChooseLine(string currentLine)
         {
             string eq = chooseIci.substr(0, chooseIci.find(","));
             string holder = evaluateExpression(eq);
-            regex temp(eq);
             temps.push_back(holder);
             chooseIci = chooseIci.substr(chooseIci.find(",") + 1);
         }
         if (temps.size() != 4)
             return "";
         string result = evaluateChoose(temps);
-        regex t(chooseOriginal);
         currentLine.replace(currentLine.find(chooseOriginal), chooseOriginal.length(), result);
-        currentLine = merveFuncu(currentLine);
+        currentLine = handleParanthesis(currentLine);
     }
     return head + currentLine + tail;
 }
