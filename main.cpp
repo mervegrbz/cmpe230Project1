@@ -35,6 +35,7 @@ int main(int argCount, char *argv[])
             currentLine = regex_replace(currentLine, RegexController::zeroController, "0");
             currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\t'), currentLine.end());
             currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), '\r'), currentLine.end());
+            currentLine.erase(std::remove(currentLine.begin(), currentLine.end(), ' '), currentLine.end());
             // Empty or comment line, skip
             if (currentLine == "" || currentLine[0] == '#')
                 continue;
@@ -58,9 +59,9 @@ int main(int argCount, char *argv[])
             if (checkAssignmentSyntax(currentLine))
                 handleAssignmentLine(currentLine);
             // If line includes while or if
-            else if (currentLine.find("while") != string::npos || currentLine.find("if") != string::npos)
+            else if (currentLine.find("while(") != string::npos || currentLine.find("if(") != string::npos)
             {
-                int openIndex = currentLine.find_first_of("(");
+                                int openIndex = currentLine.find_first_of("(");
                 int closeIndex = currentLine.find_last_of(")");
                 // Line must include { character
                 if (currentLine.find("{") == string::npos)
